@@ -1,0 +1,266 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="x-ua-compatible" content="ie=edge, chrome=1" />
+    <title>SnowME</title>
+    <style>
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+        }
+        
+        #devTestingDemo {
+            height: 100%;
+            width: 100%;
+        }
+    </style>
+    
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.2.0/leaflet.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.2.0/leaflet.js"></script>
+
+</head>
+
+<body>
+<div id="devTestingDemo"></div>
+<script>
+
+// OpenTopoMap
+let osm = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenTopoMap</a>'
+});
+
+// Sentinel Hub WMS service
+// tiles generated using EPSG:3857 projection - Leaflet takes care of that
+let baseUrl = "https://services.sentinel-hub.com/ogc/wms/425d8b48-c4a6-4e52-8f0b-f1ad26e8ae64";
+
+// sentinel2 layer True Color
+let sentinelHub_true_maxcc20 = L.tileLayer.wms(baseUrl, {
+    tileSize: 512,
+    attribution: '&copy; <a href="http://www.sentinel-hub.com/" target="_blank">Sentinel Hub</a>',
+    	 	 	 	//urlProcessingApi:"https://services.sentinel-hub.com/ogc/wms/f9f27612-5c05-4d61-892e-78d50790da0e", 
+ 	 	 	 	maxcc:20, 
+ 	 	 	 	minZoom:6, 
+ 	 	 	 	maxZoom:17, 
+ 	 	 	 	preset:"TRUE_COLOR", 
+ 	 	 	 	layers:"TRUE_COLOR,DATE", 
+ 	 	 	 	time:"2021-05-10/None", 
+
+});
+
+let sentinelHub_true_maxcc60 = L.tileLayer.wms(baseUrl, {
+    tileSize: 512,
+    attribution: '&copy; <a href="http://www.sentinel-hub.com/" target="_blank">Sentinel Hub</a>',
+    	 	 	 	//urlProcessingApi:"https://services.sentinel-hub.com/ogc/wms/f9f27612-5c05-4d61-892e-78d50790da0e", 
+ 	 	 	 	maxcc:60, 
+ 	 	 	 	minZoom:6, 
+ 	 	 	 	maxZoom:17, 
+ 	 	 	 	preset:"TRUE_COLOR", 
+ 	 	 	 	layers:"TRUE_COLOR,DATE", 
+ 	 	 	 	time:"2021-05-10/None", 
+
+});
+
+let sentinelHub_true_maxcc100 = L.tileLayer.wms(baseUrl, {
+    tileSize: 512,
+    attribution: '&copy; <a href="http://www.sentinel-hub.com/" target="_blank">Sentinel Hub</a>',
+    	 	 	 	//urlProcessingApi:"https://services.sentinel-hub.com/ogc/wms/f9f27612-5c05-4d61-892e-78d50790da0e", 
+ 	 	 	 	maxcc:100, 
+ 	 	 	 	minZoom:6, 
+ 	 	 	 	maxZoom:17, 
+ 	 	 	 	preset:"TRUE_COLOR", 
+ 	 	 	 	layers:"TRUE_COLOR,DATE", 
+ 	 	 	 	time:"2021-05-10/None", 
+
+});
+
+// sentinel2 layer geology 
+let sentinelHub_geology_maxcc20 = L.tileLayer.wms(baseUrl, {
+    tileSize: 512,
+    attribution: '&copy; <a href="http://www.sentinel-hub.com/" target="_blank">Sentinel Hub</a>',
+    	 	 	 	//urlProcessingApi:"https://services.sentinel-hub.com/ogc/wms/f9f27612-5c05-4d61-892e-78d50790da0e", 
+ 	 	 	 	maxcc:20, 
+ 	 	 	 	minZoom:6, 
+ 	 	 	 	maxZoom:17, 
+ 	 	 	 	preset:"GEOLOGY", 
+ 	 	 	 	layers:"GEOLOGY,DATE", 
+ 	 	 	 	time:"2021-05-10/None", 
+
+});
+
+let sentinelHub_geology_maxcc60 = L.tileLayer.wms(baseUrl, {
+    tileSize: 512,
+    attribution: '&copy; <a href="http://www.sentinel-hub.com/" target="_blank">Sentinel Hub</a>',
+    	 	 	 	//urlProcessingApi:"https://services.sentinel-hub.com/ogc/wms/f9f27612-5c05-4d61-892e-78d50790da0e", 
+ 	 	 	 	maxcc:60, 
+ 	 	 	 	minZoom:6, 
+ 	 	 	 	maxZoom:17, 
+ 	 	 	 	preset:"GEOLOGY", 
+ 	 	 	 	layers:"GEOLOGY,DATE", 
+ 	 	 	 	time:"2021-05-10/None", 
+
+});
+
+let sentinelHub_geology_maxcc100 = L.tileLayer.wms(baseUrl, {
+    tileSize: 512,
+    attribution: '&copy; <a href="http://www.sentinel-hub.com/" target="_blank">Sentinel Hub</a>',
+    	 	 	 	//urlProcessingApi:"https://services.sentinel-hub.com/ogc/wms/f9f27612-5c05-4d61-892e-78d50790da0e", 
+ 	 	 	 	maxcc:100, 
+ 	 	 	 	minZoom:6, 
+ 	 	 	 	maxZoom:17, 
+ 	 	 	 	preset:"GEOLOGY", 
+ 	 	 	 	layers:"GEOLOGY,DATE", 
+ 	 	 	 	time:"2021-05-10/None", 
+
+});
+
+
+// sentinel2 layer 11-8-3
+let sentinelHub_11_8_3_maxcc20 = L.tileLayer.wms(baseUrl, {
+    tileSize: 512,
+    attribution: '&copy; <a href="http://www.sentinel-hub.com/" target="_blank">Sentinel Hub</a>',
+    	 	 	 	//urlProcessingApi:"https://services.sentinel-hub.com/ogc/wms/f9f27612-5c05-4d61-892e-78d50790da0e", 
+ 	 	 	 	maxcc:20, 
+ 	 	 	 	minZoom:6, 
+ 	 	 	 	maxZoom:17, 
+ 	 	 	 	preset:"RGB_11_8_3", 
+ 	 	 	 	layers:"RGB_11_8_3,DATE", 
+ 	 	 	 	time:"2021-05-10/2021-11-23", 
+
+});
+
+let sentinelHub_11_8_3_maxcc60 = L.tileLayer.wms(baseUrl, {
+    tileSize: 512,
+    attribution: '&copy; <a href="http://www.sentinel-hub.com/" target="_blank">Sentinel Hub</a>',
+    	 	 	 	//urlProcessingApi:"https://services.sentinel-hub.com/ogc/wms/f9f27612-5c05-4d61-892e-78d50790da0e", 
+ 	 	 	 	maxcc:60, 
+ 	 	 	 	minZoom:6, 
+ 	 	 	 	maxZoom:17, 
+ 	 	 	 	preset:"RGB_11_8_3", 
+ 	 	 	 	layers:"RGB_11_8_3,DATE", 
+ 	 	 	 	time:"2021-05-10/2021-11-23", 
+
+});
+
+let sentinelHub_11_8_3_maxcc100 = L.tileLayer.wms(baseUrl, {
+    tileSize: 512,
+    attribution: '&copy; <a href="http://www.sentinel-hub.com/" target="_blank">Sentinel Hub</a>',
+    	 	 	 	//urlProcessingApi:"https://services.sentinel-hub.com/ogc/wms/f9f27612-5c05-4d61-892e-78d50790da0e", 
+ 	 	 	 	maxcc:100, 
+ 	 	 	 	minZoom:6, 
+ 	 	 	 	maxZoom:17, 
+ 	 	 	 	preset:"RGB_11_8_3", 
+ 	 	 	 	layers:"RGB_11_8_3,DATE", 
+ 	 	 	 	time:"2021-05-10/2021-11-23", 
+
+});
+
+// sentinel2 layer snow: return [Math.min(B04*2.5,(B12+B11)/2*1.5),B03*2.5,B02*2.5]
+let sentinelHub_snow_maxcc20 = L.tileLayer.wms(baseUrl, {
+    tileSize: 512,
+    attribution: '&copy; <a href="http://www.sentinel-hub.com/" target="_blank">Sentinel Hub</a>',
+    	 	 	 	urlProcessingApi:"https://services.sentinel-hub.com/ogc/wms/f9f27612-5c05-4d61-892e-78d50790da0e", 
+ 	 	 	 	maxcc:20, 
+ 	 	 	 	minZoom:6, 
+ 	 	 	 	maxZoom:17, 
+ 	 	 	 	preset:"CUSTOM",
+				evalscript:"cmV0dXJuIFtNYXRoLm1pbihCMDQqMi41LChCMTIrQjExKS8yKjEuNSksCiAgICAgICAgQjAzKjIuNSwKICAgICAgIAlCMDIqMi41XQ==",
+ 	 	 	 	evalsource:"S2L2A", 
+ 	 	 	 	PREVIEW:3, 
+ 	 	 	 	layers:"AGRICULTURE,DATE", 
+ 	 	 	 	time:"2021-05-10/None", 
+
+});
+
+let sentinelHub_snow_maxcc60 = L.tileLayer.wms(baseUrl, {
+    tileSize: 512,
+    attribution: '&copy; <a href="http://www.sentinel-hub.com/" target="_blank">Sentinel Hub</a>',
+    	 	 	 	urlProcessingApi:"https://services.sentinel-hub.com/ogc/wms/f9f27612-5c05-4d61-892e-78d50790da0e", 
+ 	 	 	 	maxcc:60, 
+ 	 	 	 	minZoom:6, 
+ 	 	 	 	maxZoom:17, 
+ 	 	 	 	preset:"CUSTOM", 
+ 	 	 	 	evalscript:"cmV0dXJuIFtNYXRoLm1pbihCMDQqMi41LChCMTIrQjExKS8yKjEuNSksCiAgICAgICAgQjAzKjIuNSwKICAgICAgIAlCMDIqMi41XQ==",
+ 	 	 	 	evalsource:"S2L2A", 
+ 	 	 	 	PREVIEW:3, 
+ 	 	 	 	layers:"AGRICULTURE,DATE", 
+ 	 	 	 	time:"2021-05-10/None", 
+
+});
+
+let sentinelHub_snow_maxcc100 = L.tileLayer.wms(baseUrl, {
+    tileSize: 512,
+    attribution: '&copy; <a href="http://www.sentinel-hub.com/" target="_blank">Sentinel Hub</a>',
+    	 	 	 	urlProcessingApi:"https://services.sentinel-hub.com/ogc/wms/f9f27612-5c05-4d61-892e-78d50790da0e", 
+ 	 	 	 	maxcc:100, 
+ 	 	 	 	minZoom:6, 
+ 	 	 	 	maxZoom:17, 
+ 	 	 	 	preset:"CUSTOM", 
+ 	 	 	 	evalscript:"cmV0dXJuIFtNYXRoLm1pbihCMDQqMi41LChCMTIrQjExKS8yKjEuNSksCiAgICAgICAgQjAzKjIuNSwKICAgICAgIAlCMDIqMi41XQ==",
+ 	 	 	 	evalsource:"S2L1C", 
+ 	 	 	 	PREVIEW:3, 
+ 	 	 	 	layers:"AGRICULTURE,DATE", 
+ 	 	 	 	time:"2021-05-10/None", 
+
+});
+
+
+// hiking trails
+var HikingTrails = L.tileLayer('https://tile.waymarkedtrails.org/{id}/{z}/{x}/{y}.png', {
+    id: 'hiking',
+    pointable: false,
+    attribution: '&copy; <a href="https://waymarkedtrails.org">Sarah Hoffmann</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)',
+});
+var CyclingTrails = L.tileLayer('https://tile.waymarkedtrails.org/{id}/{z}/{x}/{y}.png', {
+    id: 'cycling',
+    pointable: false,
+    attribution: '&copy; <a href="https://waymarkedtrails.org">Sarah Hoffmann</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)',
+});
+
+
+// DEFINE MAP
+let baseMaps = {
+    'OpenStreetMap': osm
+};
+let overlayMaps = {
+    'Sentinel 2 True Color max20% clouds': sentinelHub_true_maxcc20,
+    'Sentinel 2 True Color max60% clouds': sentinelHub_true_maxcc60,
+    'Sentinel 2 True Color max100% clouds': sentinelHub_true_maxcc100,
+    'Sentinel 2 Geology max20% clouds': sentinelHub_geology_maxcc20,
+    'Sentinel 2 Geology max60% clouds': sentinelHub_geology_maxcc60,
+    'Sentinel 2 Geology max100% clouds': sentinelHub_geology_maxcc100,
+    'Sentinel 2 11-8-3 max20% clouds': sentinelHub_11_8_3_maxcc20,
+    'Sentinel 2 11-8-3 max60% clouds': sentinelHub_11_8_3_maxcc60,
+    'Sentinel 2 11-8-3 max100% clouds': sentinelHub_11_8_3_maxcc100,
+    'Sentinel 2 Snow max20% clouds': sentinelHub_snow_maxcc20,
+    'Sentinel 2 Snow max60% clouds': sentinelHub_snow_maxcc60,
+    'Sentinel 2 Snow max100% clouds': sentinelHub_snow_maxcc100,
+    'Hiking Routes': HikingTrails,
+    'Cycling Routes': CyclingTrails,
+}
+
+// INITIALIZE MAP
+let map = L.map('devTestingDemo', {
+    center: [47.359982, 10.933606], // lat/lng in EPSG:4326
+    zoom: 11,
+    layers: [osm, sentinelHub_true_maxcc20]
+});
+
+var southWest = L.latLng(47.313860, 10.821528),
+    northEast = L.latLng(47.398143, 11.178993),
+    bounds = L.latLngBounds(southWest, northEast);
+
+//map.setMaxBounds(map.getBounds());
+//map.setMaxBounds(bounds);
+
+// adding basemaps and overlaymaps to map
+L.control.layers(baseMaps, overlayMaps).addTo(map);
+
+        </script>
+</body>
+</html>
