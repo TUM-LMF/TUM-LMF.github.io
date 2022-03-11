@@ -1,0 +1,103 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="x-ua-compatible" content="ie=edge, chrome=1" />
+    <title>TUmapp</title>
+    <style>
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+        }
+        
+        #devTestingDemo {
+            height: 100%;
+            width: 100%;
+        }
+    </style>
+    
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.2.0/leaflet.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.2.0/leaflet.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+<script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+
+</head>
+
+<body>
+<div id="devTestingDemo"></div>
+<script>
+
+// OpenTopoMap
+let osm = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://opentopomap.org/credits">OpenTopoMap</a>'
+});
+
+// Bergfex OSM
+let bergfexOSM = L.tileLayer('http://maps.bergfex.at/osm/standard/{z}/{x}/{y}.jpg', {
+    attribution: '&copy; <a href="https://www.bergfex.at/impressum/">Bergfex OpenStreetMap</a>'
+});
+
+// Sentinel Hub WMS service
+// tiles generated using EPSG:3857 projection - Leaflet takes care of that
+let baseUrl = "https://services.sentinel-hub.com/ogc/wms/f96088e0-a9b8-4156-93b3-5c9b02f239bc";
+
+// sentinel2 layer True Color
+let sentinelHub_TrueColor_maxcc20 = L.tileLayer.wms(baseUrl, {
+    tileSize: 512,
+    attribution: '&copy; <a href="http://www.sentinel-hub.com/" target="_blank">Sentinel Hub</a>',
+ 	 	 	 	maxcc:20, 
+ 	 	 	 	minZoom:1, 
+ 	 	 	 	maxZoom:18,
+ 	 	 	 	preview: 2,
+ 	 	 	 	format: "image/jpg",
+ 	 	 	 	preset:"TRUE_COLOR_VISUALIZATION", 
+ 	 	 	 	layers:"TRUE_COLOR_VISUALIZATION,DATE", 
+ 	 	 	 	time:"2021-05-10/None", 
+});
+
+// DEFINE MAP
+let baseMaps = {
+    'OpenTopoMap': osm,
+    'Bergfex OpenStreetMap': bergfexOSM,
+};
+let overlayMaps = {
+    'Sentinel 2 True Color max20% clouds': sentinelHub_TrueColor_maxcc20,
+}
+
+// INITIALIZE MAP
+let map = L.map('devTestingDemo', {
+    center: [48.14926044621638, 11.568517190895264], // lat,lng in EPSG:4326
+    zoom: 11,
+    layers: [osm, sentinelHub_TrueColor_maxcc20]
+});
+
+var southWest = L.latLng(47.2, 8.8),
+    northEast = L.latLng(50.6, 13.9),
+    bounds = L.latLngBounds(southWest, northEast);
+
+//map.setMaxBounds(map.getBounds());
+//map.setMaxBounds(bounds);
+
+// adding basemaps and overlaymaps to map
+L.control.layers(baseMaps, overlayMaps).addTo(map);
+L.Control.geocoder({
+  defaultMarkGeocode: false
+}).on('markgeocode', function(e) {
+    var bbox = e.geocode.bbox;
+    var poly = L.polygon([
+      bbox.getSouthEast(),
+      bbox.getNorthEast(),
+      bbox.getNorthWest(),
+      bbox.getSouthWest()
+    ])//.addTo(map);
+    map.fitBounds(poly.getBounds());
+}).addTo(map);
+
+        </script>
+</body>
+</html>
