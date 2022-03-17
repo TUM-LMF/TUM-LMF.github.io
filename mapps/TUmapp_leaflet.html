@@ -5,7 +5,7 @@
 <head>
     <meta charset="utf-8" />
     <meta http-equiv="x-ua-compatible" content="ie=edge, chrome=1" />
-    <title>TUmapp</title>
+    <title>TUMap</title>
     <style>
         html,
         body {
@@ -20,11 +20,15 @@
             width: 100%;
         }
     </style>
-    
+
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.2.0/leaflet.css" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.2.0/leaflet.js"></script>
+
 <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
 <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+
+<script src='https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/Leaflet.fullscreen.min.js'></script>
+<link href='https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/leaflet.fullscreen.css' rel='stylesheet' />
 
 </head>
 
@@ -49,7 +53,7 @@ let baseUrl = "https://services.sentinel-hub.com/ogc/wms/f96088e0-a9b8-4156-93b3
 // sentinel2 layer True Color
 let sentinelHub_TrueColor_maxcc20 = L.tileLayer.wms(baseUrl, {
     tileSize: 512,
-    attribution: '&copy; <a href="http://www.sentinel-hub.com/" target="_blank">Sentinel Hub</a>',
+    attribution: '&copy; <a href="https://sentinels.copernicus.eu/web/sentinel/home" target="_blank">Copernicus</a>',
  	 	 	 	maxcc:20, 
  	 	 	 	minZoom:1, 
  	 	 	 	maxZoom:18,
@@ -63,7 +67,7 @@ let sentinelHub_TrueColor_maxcc20 = L.tileLayer.wms(baseUrl, {
 // sentinel2 layer NDVI
 let sentinelHub_NDVI_maxcc20 = L.tileLayer.wms(baseUrl, {
     tileSize: 512,
-    attribution: '&copy; <a href="http://www.sentinel-hub.com/" target="_blank">Sentinel Hub</a>',
+    attribution: '&copy; <a href="https://sentinels.copernicus.eu/web/sentinel/home" target="_blank">Copernicus</a>',
  	 	 	 	maxcc:20, 
  	 	 	 	minZoom:1, 
  	 	 	 	maxZoom:18,
@@ -77,7 +81,7 @@ let sentinelHub_NDVI_maxcc20 = L.tileLayer.wms(baseUrl, {
 // sentinel2 layer SnowME
 let sentinelHub_SnowME_maxcc20 = L.tileLayer.wms(baseUrl, {
     tileSize: 512,
-    attribution: '&copy; <a href="http://www.sentinel-hub.com/" target="_blank">Sentinel Hub</a>',
+    attribution: '&copy; <a href="https://sentinels.copernicus.eu/web/sentinel/home" target="_blank">Copernicus</a>',
  	 	 	 	maxcc:20, 
  	 	 	 	minZoom:1, 
  	 	 	 	maxZoom:18,
@@ -91,7 +95,7 @@ let sentinelHub_SnowME_maxcc20 = L.tileLayer.wms(baseUrl, {
 // sentinel2 layer BurnME
 let sentinelHub_BurnME_maxcc20 = L.tileLayer.wms(baseUrl, {
     tileSize: 512,
-    attribution: '&copy; <a href="http://www.sentinel-hub.com/" target="_blank">Sentinel Hub</a>',
+    attribution: '&copy; <a href="https://sentinels.copernicus.eu/web/sentinel/home" target="_blank">Copernicus</a>',
  	 	 	 	maxcc:20, 
  	 	 	 	minZoom:1, 
  	 	 	 	maxZoom:18,
@@ -108,40 +112,85 @@ let baseMaps = {
     'Bergfex OpenStreetMap': bergfexOSM,
 };
 let overlayMaps = {
-    'Sentinel 2 True Color max20% clouds': sentinelHub_TrueColor_maxcc20,
-    'Sentinel 2 Normalized Difference Vegetation Index max20% clouds': sentinelHub_NDVI_maxcc20,
-    'Sentinel 2 SnowME max20% clouds': sentinelHub_SnowME_maxcc20,
-    'Sentinel 2 BurnME max20% clouds': sentinelHub_BurnME_maxcc20,
+    'True Color': sentinelHub_TrueColor_maxcc20,
+    'NDVI': sentinelHub_NDVI_maxcc20,
+    'SnowME': sentinelHub_SnowME_maxcc20,
+    'BurnME': sentinelHub_BurnME_maxcc20,
 }
 
 // INITIALIZE MAP
+var center = [48.14926044621638, 11.568517190895264]; // lat,lng in EPSG:4326
 let map = L.map('devTestingDemo', {
-    center: [48.14926044621638, 11.568517190895264], // lat,lng in EPSG:4326
+    center: center, 
     zoom: 11,
-    layers: [osm, sentinelHub_TrueColor_maxcc20]
+    zoomSnap: 0.25,
+    zoomDelta: 1,
+    layers: [bergfexOSM, sentinelHub_TrueColor_maxcc20],
 });
 
-var southWest = L.latLng(47.2, 8.8),
-    northEast = L.latLng(50.6, 13.9),
-    bounds = L.latLngBounds(southWest, northEast);
+var southWest = L.latLng(47.2, 8.8);
+var northEast = L.latLng(50.6, 13.9);
+var bounds = L.latLngBounds(southWest, northEast);
 
 //map.setMaxBounds(map.getBounds());
 //map.setMaxBounds(bounds);
 
+map.addControl(new L.Control.Fullscreen({
+    title: {
+        'false': 'View Fullscreen',
+        'true': 'Exit Fullscreen'
+    }
+}));
+
+map.on('click',function(e){
+    if(map.hasLayer(welcomepopup)){
+        map.removeLayer(welcomepopup)
+        warningpopup.addTo(map)
+    }
+    else{}
+})
+
 // adding basemaps and overlaymaps to map
 L.control.layers(baseMaps, overlayMaps).addTo(map);
-L.Control.geocoder({
-  defaultMarkGeocode: false
-}).on('markgeocode', function(e) {
+
+// GEOCODER
+geocoder = L.Control.geocoder({
+    defaultMarkGeocode: false
+})
+geocoder.on('markgeocode', function(e) {
     var bbox = e.geocode.bbox;
     var poly = L.polygon([
-      bbox.getSouthEast(),
-      bbox.getNorthEast(),
-      bbox.getNorthWest(),
-      bbox.getSouthWest()
+       bbox.getSouthEast(),
+       bbox.getNorthEast(),
+       bbox.getNorthWest(),
+       bbox.getSouthWest()
     ])//.addTo(map);
     map.fitBounds(poly.getBounds());
 }).addTo(map);
+
+// WELCOME
+var welcomemessage = "<h1>Welcome to TUMap!</h1><p>We are working on this mapping application at the Chair of Remote Sensing Technology (LMF) at the Technical University of Munich (TUM) in our leisure time for fun. Hence, you are free to use it the way you like as long as you credit us properly and help spreading the message!</p><p>Stay as fascinated as we are! Keep your enthusiasm!</p><img src='./files/FaceME_VeryLowRes.jpg' /><p>Click on the map to close this popup and start exploring!</p><p>Best<br/><b>Michael Engel,<br/>Chair of Remote Sensing Technology,<br/>Technical University of Munich</b></p>"
+var welcomepopup = L.popup({
+    maxWidth: 512,
+    maxHeight: "auto",
+    keepInView: true,
+    closeButton: false,
+    closeOnClick: false,
+})
+	.setContent(welcomemessage)
+	.setLatLng(center)
+	.openOn(map);
+
+var warningmessage = "<h1>DISCLAIMER</h1><p>Please note that all information provided by this tool is experimental and we explicitely exclude any responsibility of ours for the things you are doing with it!</p><p>We are changing credentials for our datasets regularly in an irregular manner such that there is no possibility to misuse them except you have some very fancy tricks. If you still should try to misuse our service, we will find out and take care of it/you!</p><p>Best<br/><b>Michael Engel,<br/>Chair of Remote Sensing Technology,<br/>Technical University of Munich</b></p>"
+var warningpopup = L.popup({
+    maxWidth: 512,
+    maxHeight: "auto",
+    keepInView: true,
+    closeButton: false,
+    closeOnClick: true,
+})
+	.setContent(warningmessage)
+	.setLatLng(center)
 
         </script>
 </body>
