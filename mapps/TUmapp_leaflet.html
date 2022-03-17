@@ -142,7 +142,12 @@ map.addControl(new L.Control.Fullscreen({
     }
 }));
 
-map.on('click',function(e){
+map.on('click',function(e){ // check order the other way round such that attributes do not exist before the've been shown once
+    if(map.hasLayer(warningpopup)){
+        map.removeLayer(warningpopup)
+        welcomepopup2.addTo(map)
+    }
+    else{}
     if(map.hasLayer(welcomepopup)){
         map.removeLayer(welcomepopup)
         warningpopup.addTo(map)
@@ -169,7 +174,7 @@ geocoder.on('markgeocode', function(e) {
 }).addTo(map);
 
 // WELCOME
-var welcomemessage = "<h1>Welcome to TUMap!</h1><p>We are working on this mapping application at the Chair of Remote Sensing Technology (LMF) at the Technical University of Munich (TUM) in our leisure time for fun. Hence, you are free to use it the way you like as long as you credit us properly and help spreading the message!</p><p>Stay as fascinated as we are! Keep your enthusiasm!</p><img src='./files/FaceME_VeryLowRes.jpg' /><p>Click on the map to close this popup and start exploring!</p><p>Best<br/><b>Michael Engel,<br/>Chair of Remote Sensing Technology,<br/>Technical University of Munich</b></p>"
+var welcomemessage = "<h1>Welcome to TUMap!</h1><p>We are working on this mapping application at the Chair of Remote Sensing Technology (LMF) at the Technical University of Munich (TUM) in our leisure time for fun. Hence, you are free to use it the way you like as long as you credit us properly and help spreading the message!<br/>(Click on the map to close this popup and start exploring!)</p><p>Best<br/><b>Michael Engel,<br/>Chair of Remote Sensing Technology,<br/>Technical University of Munich</b></p>"
 var welcomepopup = L.popup({
     maxWidth: 512,
     maxHeight: "auto",
@@ -187,9 +192,20 @@ var warningpopup = L.popup({
     maxHeight: "auto",
     keepInView: true,
     closeButton: false,
-    closeOnClick: true,
+    closeOnClick: false,
 })
 	.setContent(warningmessage)
+	.setLatLng(center)
+
+var welcomemessage2 = "<h1>Stay fascinated! Keep your enthusiasm! <font color=#fff>___.</font></h1><img src='./files/FaceME_VeryLowRes.jpg'/>"
+var welcomepopup2 = L.popup({
+    maxWidth: 512,
+    maxHeight: "auto",
+    keepInView: true,
+    closeButton: false,
+    closeOnClick: true,
+})
+	.setContent(welcomemessage2)
 	.setLatLng(center)
 
         </script>
