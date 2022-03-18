@@ -30,6 +30,9 @@
 <script src='https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/Leaflet.fullscreen.min.js'></script>
 <link href='https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/leaflet.fullscreen.css' rel='stylesheet' />
 
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol/dist/L.Control.Locate.min.css" />
+<script src="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol/dist/L.Control.Locate.min.js" charset="utf-8"></script>
+
 </head>
 
 <body>
@@ -135,10 +138,26 @@ var bounds = L.latLngBounds(southWest, northEast);
 //map.setMaxBounds(map.getBounds());
 //map.setMaxBounds(bounds);
 
+map.addControl(new L.control.layers(baseMaps, overlayMaps))
+
 map.addControl(new L.Control.Fullscreen({
     title: {
         'false': 'View Fullscreen',
         'true': 'Exit Fullscreen'
+    },
+    position: 'topleft',
+}));
+
+map.addControl(L.control.locate({
+    position: 'topleft',
+    setView: 'untilPanOrZoom',
+    flyTo: true,
+    cacheLocation: true,
+    showCompass: true,
+    drawCircle: true,
+    drawMarker: true,
+    strings: {
+        title: "LocateME!"
     }
 }));
 
@@ -155,12 +174,10 @@ map.on('click',function(e){ // check order the other way round such that attribu
     else{}
 })
 
-// adding basemaps and overlaymaps to map
-L.control.layers(baseMaps, overlayMaps).addTo(map);
-
 // GEOCODER
 geocoder = L.Control.geocoder({
-    defaultMarkGeocode: false
+    defaultMarkGeocode: false,
+    position: 'topleft'
 })
 geocoder.on('markgeocode', function(e) {
     var bbox = e.geocode.bbox;
