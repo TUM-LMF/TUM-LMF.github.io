@@ -31,8 +31,7 @@
 <link href='https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/leaflet.fullscreen.css' rel='stylesheet' />
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol/dist/L.Control.Locate.min.css" />
-<script src="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol/dist/L.Control.Locate.min.js" charset="utf-8"></script>
-
+<script src="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol/dist/L.Control.Locate.min.js" charset="utf-8"></script>  
 </head>
 
 <body>
@@ -57,56 +56,75 @@ let baseUrl = "https://services.sentinel-hub.com/ogc/wms/f96088e0-a9b8-4156-93b3
 let sentinelHub_TrueColor_maxcc20 = L.tileLayer.wms(baseUrl, {
     tileSize: 512,
     attribution: '&copy; <a href="https://sentinels.copernicus.eu/web/sentinel/home" target="_blank">Copernicus</a>',
- 	 	 	 	maxcc:20, 
- 	 	 	 	minZoom:1, 
- 	 	 	 	maxZoom:18,
- 	 	 	 	preview: 2,
- 	 	 	 	format: "image/jpg",
- 	 	 	 	preset:"TRUE_COLOR_VISUALIZATION", 
- 	 	 	 	layers:"TRUE_COLOR_VISUALIZATION,DATE", 
- 	 	 	 	time:"2021-05-10/None", 
+ 	maxcc:20, 
+ 	minZoom:1, 
+ 	maxZoom:18,
+ 	preview: 2,
+ 	format: "image/jpg",
+ 	opacity: 1,
+ 	preset:"TRUE_COLOR_VISUALIZATION", 
+ 	layers:"TRUE_COLOR_VISUALIZATION,DATE", 
+ 	time:"2021-05-10/None", 
 });
 
 // sentinel2 layer NDVI
 let sentinelHub_NDVI_maxcc20 = L.tileLayer.wms(baseUrl, {
     tileSize: 512,
     attribution: '&copy; <a href="https://sentinels.copernicus.eu/web/sentinel/home" target="_blank">Copernicus</a>',
- 	 	 	 	maxcc:20, 
- 	 	 	 	minZoom:1, 
- 	 	 	 	maxZoom:18,
- 	 	 	 	preview: 2,
- 	 	 	 	format: "image/jpg",
- 	 	 	 	preset:"NDVI_VISUALIZATION", 
- 	 	 	 	layers:"NDVI_VISUALIZATION,DATE", 
- 	 	 	 	time:"2021-05-10/None",
+ 	maxcc:20, 
+ 	minZoom:1, 
+ 	maxZoom:18,
+ 	preview: 2,
+ 	format: "image/jpg",
+ 	opacity: 1,
+ 	preset:"NDVI_VISUALIZATION", 
+ 	layers:"NDVI_VISUALIZATION,DATE", 
+ 	time:"2021-05-10/None",
 });
 
 // sentinel2 layer SnowME
 let sentinelHub_SnowME_maxcc20 = L.tileLayer.wms(baseUrl, {
     tileSize: 512,
     attribution: '&copy; <a href="https://sentinels.copernicus.eu/web/sentinel/home" target="_blank">Copernicus</a>',
- 	 	 	 	maxcc:20, 
- 	 	 	 	minZoom:1, 
- 	 	 	 	maxZoom:18,
- 	 	 	 	preview: 2,
- 	 	 	 	format: "image/jpg",
- 	 	 	 	preset:"SNOWME", 
- 	 	 	 	layers:"SNOWME,DATE", 
- 	 	 	 	time:"2021-05-10/None",
+ 	maxcc:20, 
+ 	minZoom:1, 
+ 	maxZoom:18,
+ 	preview: 2,
+ 	format: "image/jpg",
+ 	opacity: 1,
+ 	preset:"SNOWME", 
+ 	layers:"SNOWME,DATE", 
+ 	time:"2021-05-10/None",
+});
+
+// sentinel2 overlay SnowME
+let sentinelHub_SnowME_overlay_maxcc20 = L.tileLayer.wms(baseUrl, {
+    tileSize: 512,
+    attribution: '&copy; <a href="https://sentinels.copernicus.eu/web/sentinel/home" target="_blank">Copernicus</a>',
+ 	maxcc:20, 
+ 	minZoom:1, 
+ 	maxZoom:18,
+ 	preview: 2,
+ 	format: "image/png",
+ 	//opacity: 0.2,
+ 	preset:"SNOWME_OVERLAY", 
+ 	layers:"SNOWME_OVERLAY,DATE", 
+ 	time:"2021-05-10/None",
 });
 
 // sentinel2 layer BurnME
 let sentinelHub_BurnME_maxcc20 = L.tileLayer.wms(baseUrl, {
     tileSize: 512,
     attribution: '&copy; <a href="https://sentinels.copernicus.eu/web/sentinel/home" target="_blank">Copernicus</a>',
- 	 	 	 	maxcc:20, 
- 	 	 	 	minZoom:1, 
- 	 	 	 	maxZoom:18,
- 	 	 	 	preview: 2,
- 	 	 	 	format: "image/jpg",
- 	 	 	 	preset:"BURNME", 
- 	 	 	 	layers:"BURNME,DATE", 
- 	 	 	 	time:"2021-05-10/None",
+ 	maxcc:20, 
+ 	minZoom:1, 
+ 	maxZoom:18,
+ 	preview: 2,
+ 	format: "image/jpg",
+ 	opacity: 1,
+ 	preset:"BURNME", 
+ 	layers:"BURNME,DATE", 
+ 	time:"2021-05-10/None",
 });
 
 // DEFINE MAP
@@ -118,6 +136,7 @@ let overlayMaps = {
     'True Color': sentinelHub_TrueColor_maxcc20,
     'NDVI': sentinelHub_NDVI_maxcc20,
     'SnowME': sentinelHub_SnowME_maxcc20,
+    'SnowME Mask': sentinelHub_SnowME_overlay_maxcc20,
     'BurnME': sentinelHub_BurnME_maxcc20,
 }
 
@@ -138,7 +157,21 @@ var bounds = L.latLngBounds(southWest, northEast);
 //map.setMaxBounds(map.getBounds());
 //map.setMaxBounds(bounds);
 
-map.addControl(new L.control.layers(baseMaps, overlayMaps))
+map.addControl(new L.control.layers(baseMaps, overlayMaps));
+
+var legend = L.control({position: "bottomright"});
+legend.onAdd = function(map) {
+  var div = L.DomUtil.create("div", "legend");
+  div.innerHTML += "<div class='square' style='background: rgba(255,255,255,0.5); padding:5px; border:1px; width:auto; height:auto'><span><b>SnowME Mask</b></span><div class='square' style='background: rgba(0,101,189,0.5); padding:5px; border:1px; width:auto; height:auto'><span><font color=#fff>Clouds</font></span></div><div class='square' style='background: rgba(0,255,255,0.5); padding:5px; border:1px; width:auto; height:auto'><span><font color=#fff>Snow</font></span></div></div>";
+  return div;
+};
+
+// scale
+map.addControl(new L.control.scale({
+    position: 'bottomleft',
+    metric: true,
+    imperial: false,
+}));
 
 map.addControl(new L.Control.Fullscreen({
     title: {
@@ -174,6 +207,22 @@ map.on('click',function(e){ // check order the other way round such that attribu
     else{}
 })
 
+map.on('overlayadd', function(eventLayer) {
+    if (eventLayer.name === 'SnowME Mask') {
+        legend.addTo(this);
+    } else {
+        //this.removeControl(legend);
+    }
+});
+
+map.on('overlayremove', function(eventLayer) {
+    if (eventLayer.name === 'SnowME Mask') {
+        this.removeControl(legend);
+    } else { // Or switch to the treeline legend...
+        //legend.addTo(this);
+    }
+});
+
 // GEOCODER
 geocoder = L.Control.geocoder({
     defaultMarkGeocode: false,
@@ -191,7 +240,7 @@ geocoder.on('markgeocode', function(e) {
 }).addTo(map);
 
 // WELCOME
-var welcomemessage = "<h1>Welcome to TUMap!</h1><p>We are working on this mapping application at the Chair of Remote Sensing Technology (LMF) at the Technical University of Munich (TUM) in our leisure time for fun. Hence, you are free to use it the way you like as long as you credit us properly and help spreading the message!<br/>(Click on the map to close this popup and start exploring!)</p><p>Best<br/><b>Michael Engel,<br/>Chair of Remote Sensing Technology,<br/>Technical University of Munich</b></p>"
+var welcomemessage = "<h1>Welcome to TUMap!</h1><p>We are working on this mapping application at the Chair of Remote Sensing Technology (LMF) at the Technical University of Munich (TUM) in our leisure time for fun. Hence, you are free to use it the way you like as long as you credit us properly and help spreading the message!<br/>(Click on the map to close this popup and start exploring!)</p><p><b>Michael Engel,<br/>Chair of Remote Sensing Technology,<br/>Technical University of Munich</b></p>"
 var welcomepopup = L.popup({
     maxWidth: 301,
     maxHeight: "auto",
@@ -203,7 +252,7 @@ var welcomepopup = L.popup({
 	.setLatLng(center)
 	.openOn(map);
 
-var warningmessage = "<h1>DISCLAIMER</h1><p>Please note that all information provided by this tool is experimental and we explicitely exclude any responsibility of ours for the things you are doing with it!</p><p>We are changing credentials for our datasets regularly in an irregular manner such that there is no possibility to misuse them except you have some very fancy tricks. If you still should try to misuse our service, we will find out and take care of it/you!</p><p>Best<br/><b>Michael Engel,<br/>Chair of Remote Sensing Technology,<br/>Technical University of Munich</b></p>"
+var warningmessage = "<h1>DISCLAIMER</h1><p>Please note that all information provided by this tool is experimental and we explicitely exclude any responsibility of ours for the things you are doing with it!</p><p>We are changing credentials for our datasets regularly in an irregular manner such that there is no possibility to misuse them except you have some very fancy tricks. If you still should try to misuse our service, we will find out and take care of it/you!</p><p><b>Michael Engel,<br/>Chair of Remote Sensing Technology,<br/>Technical University of Munich</b></p>"
 var warningpopup = L.popup({
     maxWidth: 301,
     maxHeight: "auto",
@@ -214,7 +263,7 @@ var warningpopup = L.popup({
 	.setContent(warningmessage)
 	.setLatLng(center)
 
-var welcomemessage2 = "<h1><font color=#fff>___..</font>Stay fascinated!<br/><font color=#fff>...</font>Keep your enthusiasm!<font color=#fff>..</font></h1><img src='./files/FaceME_VeryVeryVeryLowRes.jpg'/>"
+var welcomemessage2 = "<h1><font color=#fff>...</font>Keep your enthusiasm!<font color=#fff>..</font></h1><img src='./files/FaceME_VeryVeryVeryLowRes.jpg'/>"
 var welcomepopup2 = L.popup({
     maxWidth: 301,
     maxHeight: "auto",
