@@ -14,30 +14,167 @@
             height: 100%;
             width: 100%;
         }
+        .button_decline {
+            background-color: rgb(227,114,34);
+            border: none;
+            color: white;
+            padding: 15px 32px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            z-index: 103;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+        }
+        .button_accept {
+            background-color: rgb(0,101,189);
+            border: none;
+            color: white;
+            padding: 15px 32px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            z-index: 103;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+        }
         
-        #devTestingDemo {
+        
+        
+        .map {
             height: 100%;
             width: 100%;
+            visibility: visible;
+            z-index:1;
         }
+        
+        
+        .welcome {
+            width:100%; height:100%;
+            top:0px; left:0px; position:fixed;
+            display:block; z-index:100;
+            background: rgba(255,255,255,0.9);
+        }
+        .welcome_text {
+            max-width: "auto";
+            max-height: "auto";
+            position: absolute;
+            top: 50%; left:50%;
+            transform: translate(-50%, -50%);
+            z-index: 101;
+            
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: "auto";
+            font-weight: "auto";
+            }
+            
+        .disclaimer {
+            width:100%; height:100%;
+            top:0px; left:0px; position:fixed;
+            display:block; z-index:102;
+            background: rgba(255,255,255,0.9);
+        }
+        .disclaimer_text {
+            max-width: "auto";
+            max-height: "auto";
+            position: absolute;
+            top: 50%; left:50%;
+            transform: translate(-50%, -50%);
+            z-index: 103;
+            
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: "auto";
+            font-weight: "auto";
+            }
+            
+        .loader {
+            width:100%; height:100%;
+            top:0px; left:0px; position:fixed;
+            display:block; z-index:104;
+            background: rgba(0,101,189,1);
+        }
+        .loader_gif {       
+            border-top: 2.5vmin solid rgba(255,255,255,0);
+            border-right: 2.5vmin solid rgba(255,255,255,1);
+            border-bottom: 2.5vmin solid rgba(255,255,255,0);
+            border-left: 2.5vmin solid rgba(255,255,255,1);
+            border-radius: 50%;
+            -webkit-animation: spin 2s linear infinite; /* Safari */
+            animation: spin 2s linear infinite;
+
+            width: 90vmin;
+            height: 90vmin;
+            position: absolute;
+            top: 50%; left:50%;
+            margin: -47.5vmin 0 0 -47.5vmin;
+            z-index: 105;
+        }
+        .loader_image {
+            max-width: 63vmin;
+            max-height: 63vmin;
+            position: absolute;
+            top: 50%; left:50%;
+            transform: translate(-50%, -50%);
+            z-index: 106;
+        }        
+        /* Safari */
+        @-webkit-keyframes spin {
+            0% { -webkit-transform: rotate(0deg); }
+            100% { -webkit-transform: rotate(360deg); }
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
     </style>
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.2.0/leaflet.css" />
-<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.2.0/leaflet.js"></script>
-
-<link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
-<script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
-
-<script src='https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/Leaflet.fullscreen.min.js'></script>
-<link href='https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/leaflet.fullscreen.css' rel='stylesheet' />
-
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol/dist/L.Control.Locate.min.css" />
-<script src="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol/dist/L.Control.Locate.min.js" charset="utf-8"></script>  
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.2.0/leaflet.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.2.0/leaflet.js"></script>
+    
+    <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+    
+    <script src='https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/Leaflet.fullscreen.min.js'></script>
+    <link rel='stylesheet' href='https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/leaflet.fullscreen.css'/>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol/dist/L.Control.Locate.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol/dist/L.Control.Locate.min.js" charset="utf-8"></script>  
+    
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 </head>
 
 <body>
-<div id="devTestingDemo"></div>
-<script>
+<div id="loadingDiv" class="loader" alt="Loader">
+    <img id="loading-image" class="loader_image" src="./files/TUM_Logo_weiss_rgb_s.svg" alt="Loading..." />
+    <div id="loader_gifDiv" class="loader_gif"></div>
+</div>
 
+<div id="disclaimerDiv" class="disclaimer">
+    <div id="disclaimer_text" class="disclaimer_text" alt="Disclaimer" />
+    <h1>Welcome to TUMap!</h1>
+    <p>We are working on this mapping application at the Chair of Remote Sensing Technology (LMF) at the Technical University of Munich (TUM) in our leisure time for fun.
+    Hence, you are free to use it the way you like as long as you credit us properly and help spreading the message!<br/></p>
+    <p>Please note that all information provided by this tool is experimental and we explicitely exclude any responsibility of ours for the things you are doing with it!</p>
+    <p>We are changing credentials for our datasets regularly in an irregular manner such that there is no possibility to misuse them except you have some very fancy tricks.
+    If you still should try to misuse our service, we will find out and take care of it/you!</p>
+    <p><b>Michael Engel,<br/>Chair of Remote Sensing Technology,<br/>Technical University of Munich</b></p>
+    <button id="disclaimerbutton_acceptDiv" class="button_accept">ACCEPT</button><button id="disclaimerbutton_declineDiv" class="button_decline">DECLINE</button>
+    </div>
+</div>
+
+<div id="welcomeDiv" class="welcome">
+    <div id="welcome_text" class="disclaimer_text" alt="Welcome"/>
+    <h1 style="text-align:center">Keep your enthusiasm!</h1>
+    <img src='./files/FaceME_VeryVeryLowRes.jpg' style='max-width:90vmin;max-height:90vmin'/>
+    </div>
+</div>
+
+<div id="map" class='map'></div>
+
+<script>
 // OpenTopoMap
 let osm = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="https://opentopomap.org/credits">OpenTopoMap</a>'
@@ -142,7 +279,7 @@ let overlayMaps = {
 
 // INITIALIZE MAP
 var center = [48.14926044621638, 11.568517190895264]; // lat,lng in EPSG:4326
-let map = L.map('devTestingDemo', {
+let map = L.map('map', {
     center: center, 
     zoom: 11,
     zoomSnap: 0.25,
@@ -194,19 +331,6 @@ map.addControl(L.control.locate({
     }
 }));
 
-map.on('click',function(e){ // check order the other way round such that attributes do not exist before the've been shown once
-    if(map.hasLayer(warningpopup)){
-        map.removeLayer(warningpopup)
-        welcomepopup2.addTo(map)
-    }
-    else{}
-    if(map.hasLayer(welcomepopup)){
-        map.removeLayer(welcomepopup)
-        warningpopup.addTo(map)
-    }
-    else{}
-})
-
 map.on('overlayadd', function(eventLayer) {
     if (eventLayer.name === 'SnowME Mask') {
         legend.addTo(this);
@@ -239,6 +363,7 @@ geocoder.on('markgeocode', function(e) {
     map.fitBounds(poly.getBounds());
 }).addTo(map);
 
+/*
 // WELCOME
 var welcomemessage = "<h1>Welcome to TUMap!</h1><p>We are working on this mapping application at the Chair of Remote Sensing Technology (LMF) at the Technical University of Munich (TUM) in our leisure time for fun. Hence, you are free to use it the way you like as long as you credit us properly and help spreading the message!<br/>(Click on the map to close this popup and start exploring!)</p><p><b>Michael Engel,<br/>Chair of Remote Sensing Technology,<br/>Technical University of Munich</b></p>"
 var welcomepopup = L.popup({
@@ -263,7 +388,7 @@ var warningpopup = L.popup({
 	.setContent(warningmessage)
 	.setLatLng(center)
 
-var welcomemessage2 = "<h1><font color=#fff>...</font>Keep your enthusiasm!<font color=#fff>..</font></h1><img src='./files/FaceME_VeryVeryVeryLowRes.jpg'/>"
+var welcomemessage2 = "<h1><font color=#fff>...</font>Keep your enthusiasm!<font color=#fff>..</font></h1><img src='./files/FaceME_VeryVeryLowRes.jpg' style='max-width:100%;max-height:80%'/>"
 var welcomepopup2 = L.popup({
     maxWidth: 301,
     maxHeight: "auto",
@@ -273,7 +398,52 @@ var welcomepopup2 = L.popup({
 })
 	.setContent(welcomemessage2)
 	.setLatLng(center)
+*/
+//#############################################################################
+//### BUTTONS #################################################################
+//#############################################################################	
+$(disclaimerbutton_acceptDiv).on('click', function(){
+    removeDiv($("#disclaimerDiv"));
+    showDiv($("#welcomeDiv"));
+    setTimeout(removeWelcome,2000);
+});
+function removeWelcome(){
+    removeDiv($("#welcomeDiv"))
+}
 
-        </script>
+$(disclaimerbutton_declineDiv).on('click', function(){
+    hideDiv($("#map"));
+    removeDiv($("#welcomeDiv"));
+    removeDiv($("#disclaimerDiv"));
+    removeDiv($("#map"));
+});
+
+//#############################################################################
+//### LOADER ##################################################################
+//#############################################################################
+$(window).on('load', function(){
+    setTimeout(removeLoader, 2500);
+});
+function removeLoader(){
+    hideDiv($("#welcomeDiv"))
+    removeDiv($("#loadingDiv"))
+}
+
+//#############################################################################
+//### UTILS ###################################################################
+//#############################################################################
+function removeDiv(Div){
+    Div.fadeOut(500, function() {
+        Div.remove();
+    });  
+}
+function showDiv(Div){
+    Div.show()
+}
+function hideDiv(Div){
+    Div.hide()
+}
+</script>
+
 </body>
 </html>
