@@ -1,0 +1,383 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="x-ua-compatible" content="ie=edge, chrome=1" />
+    <title>LDBV-Project</title>
+
+    <!-- Own Style -->
+    <link rel="stylesheet" href="./styles/style.css" />
+    <link rel="stylesheet" href="./styles/style_buttons.css" />
+    <link rel="stylesheet" href="./styles/style_loader.css" />
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.2.0/leaflet.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.2.0/leaflet.js"></script>
+    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+    <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+    
+    <link rel='stylesheet' href='https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/leaflet.fullscreen.css'/>
+    <script src='https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/Leaflet.fullscreen.min.js'></script>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol/dist/L.Control.Locate.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol/dist/L.Control.Locate.min.js" charset="utf-8"></script>  
+    
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+</head>
+
+<body>
+<div id="loadingDiv" class="loader" alt="Loader">
+    <img id="loading-image" class="loader_image" src="./files/TUM_Logo_weiss_rgb_s.svg" alt="Loading..." />
+    <div id="loader_gifDiv" class="loader_gif"></div>
+</div>
+
+<div id="disclaimerDiv" class="disclaimer">
+    <div id="disclaimer_text" class="disclaimer_text" alt="Disclaimer" />
+    <h1>Welcome to the LDBV project presentation!</h1>
+    <p><b>Chair of Remote Sensing Technology,<br/>Technical University of Munich,<br/>80333 Munich, Bavaria</b></p>
+    <button id="disclaimerbutton_acceptDiv" class="button_accept">EXPLORE</button>
+    </div>
+</div>
+
+<div id="welcomeDiv" class="welcome">
+    <div id="welcome_text" class="disclaimer_text" alt="Welcome"/>
+    <img src='./files/Bayernlabel_SmallRes_transparent.png' style='max-width:63vmin;max-height:63vmin'/>
+    </div>
+</div>
+
+<div id="map" class='map'></div>
+
+<script>
+// OpenTopoMap
+let osm = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://opentopomap.org/credits">OpenTopoMap</a>'
+});
+
+// Sentinel Hub WMS service
+let baseUrl_SH = "https://services.sentinel-hub.com/ogc/wms/f96088e0-a9b8-4156-93b3-5c9b02f239bc";
+let timestance = "2020-07-29/2020-07-31"
+
+// sentinel2 layer True Color
+let sentinelHub_TrueColor_maxcc20 = L.tileLayer.wms(baseUrl_SH, {
+    tileSize: 512,
+    attribution: '&copy; <a href="https://sentinels.copernicus.eu/web/sentinel/home" target="_blank">Copernicus</a>',
+ 	maxcc:20, 
+ 	minZoom:1, 
+ 	maxZoom:18,
+ 	preview: 2,
+ 	format: "image/jpg",
+ 	opacity: 1,
+ 	preset:"TRUE_COLOR_VISUALIZATION", 
+ 	layers:"TRUE_COLOR_VISUALIZATION",
+ 	time:timestance, 
+    priority:"mostRecent",
+});
+
+let sentinelHub_SWIR_maxcc20 = L.tileLayer.wms(baseUrl_SH, {
+    tileSize: 512,
+    attribution: '&copy; <a href="https://sentinels.copernicus.eu/web/sentinel/home" target="_blank">Copernicus</a>',
+ 	maxcc:20, 
+ 	minZoom:1, 
+ 	maxZoom:18,
+ 	preview: 2,
+ 	format: "image/jpg",
+ 	opacity: 1,
+ 	preset:"SWIR_VISUALIZATION", 
+ 	layers:"SWIR_VISUALIZATION",
+ 	time:timestance, 
+    priority:"mostRecent",
+});
+
+// LDBV U-Net B02,B03,B04
+let baseURL_LDBV = "https://services.sentinel-hub.com/ogc/wms/9cf985a3-468a-408c-9c93-fca05b0b396a"
+let label = L.tileLayer.wms(baseURL_LDBV, {
+    tileSize: 512,
+    attribution: '&copy; <a href="https://www.asg.ed.tum.de/lmf/startseite/" target="_blank">TUM LMF</a>',
+ 	minZoom:1, 
+ 	maxZoom:18,
+ 	preview: 2,
+ 	format: "image/jpg",
+ 	opacity: 1,
+ 	layers:"LDBV_LABEL_1M_VISUALIZATION", 
+});
+
+let Unet_234 = L.tileLayer.wms(baseURL_LDBV, {
+    tileSize: 512,
+    attribution: '&copy; <a href="https://www.asg.ed.tum.de/lmf/startseite/" target="_blank">TUM LMF</a>',
+ 	minZoom:1, 
+ 	maxZoom:18,
+ 	preview: 2,
+ 	format: "image/jpg",
+ 	opacity: 1,
+ 	layers:"LDBV_SEGMENTATION_UNET_RGB_BETTER", 
+});
+
+let Deeplab_234 = L.tileLayer.wms(baseURL_LDBV, {
+    tileSize: 512,
+    attribution: '&copy; <a href="https://www.asg.ed.tum.de/lmf/startseite/" target="_blank">TUM LMF</a>',
+ 	minZoom:1, 
+ 	maxZoom:18,
+ 	preview: 2,
+ 	format: "image/jpg",
+ 	opacity: 1,
+ 	layers:"LDBV_SEGMENTATION_DEEPLABV3PLUS_B02B03B04", 
+});
+
+let Unet_2348 = L.tileLayer.wms(baseURL_LDBV, {
+    tileSize: 512,
+    attribution: '&copy; <a href="https://www.asg.ed.tum.de/lmf/startseite/" target="_blank">TUM LMF</a>',
+ 	minZoom:1, 
+ 	maxZoom:18,
+ 	preview: 2,
+ 	format: "image/jpg",
+ 	opacity: 1,
+ 	layers:"LDBV_SEGMENTATION_UNET_B02B03B04B08", 
+});
+
+let Deeplab_2348 = L.tileLayer.wms(baseURL_LDBV, {
+    tileSize: 512,
+    attribution: '&copy; <a href="https://www.asg.ed.tum.de/lmf/startseite/" target="_blank">TUM LMF</a>',
+ 	minZoom:1, 
+ 	maxZoom:18,
+ 	preview: 2,
+ 	format: "image/jpg",
+ 	opacity: 1,
+ 	layers:"LDBV_SEGMENTATION_DEEPLABV3PLUS_B02B03B04B08", 
+});
+
+let Unet_23481112 = L.tileLayer.wms(baseURL_LDBV, {
+    tileSize: 512,
+    attribution: '&copy; <a href="https://www.asg.ed.tum.de/lmf/startseite/" target="_blank">TUM LMF</a>',
+ 	minZoom:1, 
+ 	maxZoom:18,
+ 	preview: 2,
+ 	format: "image/jpg",
+ 	opacity: 1,
+ 	layers:"LDBV_SEGMENTATION_UNET_B02B03B04B08B11B12_CORRECTED", 
+});
+
+let Deeplab_23481112 = L.tileLayer.wms(baseURL_LDBV, {
+    tileSize: 512,
+    attribution: '&copy; <a href="https://www.asg.ed.tum.de/lmf/startseite/" target="_blank">TUM LMF</a>',
+ 	minZoom:1, 
+ 	maxZoom:18,
+ 	preview: 2,
+ 	format: "image/jpg",
+ 	opacity: 1,
+ 	layers:"LDBV_SEGMENTATION_DEEPLABV3PLUS_B02B03B04B08B11B12_CORRECTED2", 
+});
+
+let Unet_123456788A9101112 = L.tileLayer.wms(baseURL_LDBV, {
+    tileSize: 512,
+    attribution: '&copy; <a href="https://www.asg.ed.tum.de/lmf/startseite/" target="_blank">TUM LMF</a>',
+ 	minZoom:1, 
+ 	maxZoom:18,
+ 	preview: 2,
+ 	format: "image/jpg",
+ 	opacity: 1,
+ 	layers:"LDBV_SEGMENTATION_UNET_B01B02B03B04B05B06B07B08B8AB09B10B11B12", 
+});
+
+// DEFINE MAP
+let baseMaps = {
+    'OpenTopoMap': osm,
+    'True Color': sentinelHub_TrueColor_maxcc20,
+    "LDBV Label": label,
+};
+let overlayMaps = {
+    'RGB U-Net':Unet_234,
+    "RGB DeepLabV3+":Deeplab_234,
+    "RGB+NIR U-Net":Unet_2348,
+    "RGB+NIR DeepLabV3+":Deeplab_2348,
+    "RGB+NIR+SWIR U-Net":Unet_23481112, // corrected but masking issue
+    "RGB+NIR+SWIR DeepLabV3+":Deeplab_23481112, // corrected best
+    "ALL U-Net":Unet_123456788A9101112
+}
+
+// INITIALIZE MAP
+var center = [48.14926044621638, 11.568517190895264]; // lat,lng in EPSG:4326
+let map = L.map('map', {
+    center: center, 
+    zoom: 11,
+    zoomSnap: 0.25,
+    zoomDelta: 1,
+    layers: [osm,],
+});
+
+var southWest = L.latLng(47.2, 8.8);
+var northEast = L.latLng(50.6, 13.9);
+var bounds = L.latLngBounds(southWest, northEast);
+
+map.setMaxBounds(map.getBounds());
+map.setMaxBounds(bounds);
+
+map.addControl(new L.control.layers(baseMaps, overlayMaps));
+
+var legend = L.control({position: "bottomright"});
+legend.onAdd = function(map) {
+    var div = L.DomUtil.create("div", "legend");
+    div.innerHTML = `
+        <div class='legendary'>
+            <span><b>LDBV LULC</b></span>
+            <div class='square' style='background: rgba(147,144,117,0.8); padding:5px; border:1px; width:auto; height:auto'><span><font color=#000>Ackerland</font></span></div>
+            <div class='square' style='background: rgba(122,131,95,0.8); padding:5px; border:1px; width:auto; height:auto'><span><font color=#000>Aufforstung Laubwald</font></span></div>
+            <div class='square' style='background: rgba(105, 110, 82,0.8); padding:5px; border:1px; width:auto; height:auto'><span><font color=#000>Aufforstung Mischwald</font></span></div>
+            <div class='square' style='background: rgba(112, 113, 92 ,0.8); padding:5px; border:1px; width:auto; height:auto'><span><font color=#000>Aufforstung Nadelwald</font></span></div>
+            <div class='square' style='background: rgba(116, 124, 90 ,0.8); padding:5px; border:1px; width:auto; height:auto'><span><font color=#000>Baumschule</font></span></div>
+            <div class='square' style='background: rgba(215, 198, 186 ,0.8); padding:5px; border:1px; width:auto; height:auto'><span><font color=#000>Eis</font></span></div>
+
+            <div class='square' style='background: rgba(155, 151, 146 ,0.8); padding:5px; border:1px; width:auto; height:auto'><span><font color=#000>Festgestein</font></span></div>
+            <div class='square' style='background: rgba(135, 139, 113 ,0.8); padding:5px; border:1px; width:auto; height:auto'><span><font color=#000>Fließgewässer</font></span></div>
+            <div class='square' style='background: rgba(105, 120, 117 ,0.8); padding:5px; border:1px; width:auto; height:auto'><span><font color=#000>Freistehende Solaranlage</font></span></div>
+            <div class='square' style='background: rgba(109, 115, 96 ,0.8); padding:5px; border:1px; width:auto; height:auto'><span><font color=#000>Friedhof</font></span></div>
+            <div class='square' style='background: rgba(96, 138, 88 ,0.8); padding:5px; border:1px; width:auto; height:auto'><span><font color=#000>Fußballplatz</font></span></div>
+
+            <div class='square' style='background: rgba(172, 176, 162 ,0.8); padding:5px; border:1px; width:auto; height:auto'><span><font color=#000>Gartenland</font></span></div>
+            <div class='square' style='background: rgba(133, 129, 113 ,0.8); padding:5px; border:1px; width:auto; height:auto'><span><font color=#000>Gärtnerei</font></span></div>
+            <div class='square' style='background: rgba(106, 121, 81 ,0.8); padding:5px; border:1px; width:auto; height:auto'><span><font color=#000>Gebüsch</font></span></div>
+            <div class='square' style='background: rgba(125, 130, 102 ,0.8); padding:5px; border:1px; width:auto; height:auto'><span><font color=#000>Gehölz</font></span></div>
+            <div class='square' style='background: rgba(136, 136, 136 ,0.8); padding:5px; border:1px; width:auto; height:auto'><span><font color=#000>Geröll</font></span></div>
+
+            <div class='square' style='background: rgba(118, 132, 86 ,0.8); padding:5px; border:1px; width:auto; height:auto'><span><font color=#000>Golfplatz</font></span></div>
+            <div class='square' style='background: rgba(133, 170, 87 ,0.8); padding:5px; border:1px; width:auto; height:auto'><span><font color=#000>Gras</font></span></div>
+            <div class='square' style='background: rgba(143, 134, 131 ,0.8); padding:5px; border:1px; width:auto; height:auto'><span><font color=#000>Heide</font></span></div>
+            <div class='square' style='background: rgba(148, 146, 150 ,0.8); padding:5px; border:1px; width:auto; height:auto'><span><font color=#000>Hochbau</font></span></div>
+            <div class='square' style='background: rgba(147, 163, 116 ,0.8); padding:5px; border:1px; width:auto; height:auto'><span><font color=#000>Hopfen</font></span></div>
+
+            <div class='square' style='background: rgba(124, 118, 114 ,0.8); padding:5px; border:1px; width:auto; height:auto'><span><font color=#000>Kiesgrube</font></span></div>
+            <div class='square' style='background: rgba(131, 132, 130 ,0.8); padding:5px; border:1px; width:auto; height:auto'><span><font color=#000>Klärbecken</font></span></div>
+            <div class='square' style='background: rgba(119, 119, 61 ,0.8); padding:5px; border:1px; width:auto; height:auto'><span><font color=#000>Laubwald</font></span></div>
+            <div class='square' style='background: rgba(149, 137, 137 ,0.8); padding:5px; border:1px; width:auto; height:auto'><span><font color=#000>Lockermaterial</font></span></div>
+            <div class='square' style='background: rgba(120, 117, 75 ,0.8); padding:5px; border:1px; width:auto; height:auto'><span><font color=#000>Mischwald</font></span></div>
+
+            <div class='square' style='background: rgba(122, 123, 104 ,0.8); padding:5px; border:1px; width:auto; height:auto'><span><font color=#000>Moor</font></span></div>
+            <div class='square' style='background: rgba(108, 111, 87 ,0.8); padding:5px; border:1px; width:auto; height:auto'><span><font color=#000>Nadelwald</font></span></div>
+            <div class='square' style='background: rgba(176, 176, 187 ,0.8); padding:5px; border:1px; width:auto; height:auto'><span><font color=#000>NoData</font></span></div>
+            <div class='square' style='background: rgba(121, 134, 102 ,0.8); padding:5px; border:1px; width:auto; height:auto'><span><font color=#000>Obstplantage</font></span></div>
+            <div class='square' style='background: rgba(130, 133, 114 ,0.8); padding:5px; border:1px; width:auto; height:auto'><span><font color=#000>Regenrückhaltebecken</font></span></div>
+
+            <div class='square' style='background: rgba(191, 158, 116 ,0.8); padding:5px; border:1px; width:auto; height:auto'><span><font color=#000>Sand</font></span></div>
+            <div class='square' style='background: rgba(118, 119, 104 ,0.8); padding:5px; border:1px; width:auto; height:auto'><span><font color=#000>Schießanlage</font></span></div>
+            <div class='square' style='background: rgba(123, 135, 105 ,0.8); padding:5px; border:1px; width:auto; height:auto'><span><font color=#000>Schilf und Röhricht</font></span></div>
+            <div class='square' style='background: rgba(105, 149, 152 ,0.8); padding:5px; border:1px; width:auto; height:auto'><span><font color=#000>Schwimmbecken</font></span></div>
+            <div class='square' style='background: rgba(118, 127, 102 ,0.8); padding:5px; border:1px; width:auto; height:auto'><span><font color=#000>Stehendes Gewässer</font></span></div>
+
+            <div class='square' style='background: rgba(142, 142, 143 ,0.8); padding:5px; border:1px; width:auto; height:auto'><span><font color=#000>Steine und Schotter</font></span></div>
+            <div class='square' style='background: rgba(123, 126, 104 ,0.8); padding:5px; border:1px; width:auto; height:auto'><span><font color=#000>Streuobstacker</font></span></div>
+            <div class='square' style='background: rgba(115, 130, 99 ,0.8); padding:5px; border:1px; width:auto; height:auto'><span><font color=#000>Streuobstwiese</font></span></div>
+            <div class='square' style='background: rgba(94, 101, 77 ,0.8); padding:5px; border:1px; width:auto; height:auto'><span><font color=#000>Sumpf</font></span></div>
+            <div class='square' style='background: rgba(136, 126, 103 ,0.8); padding:5px; border:1px; width:auto; height:auto'><span><font color=#000>Tennisplatz</font></span></div>
+            
+            <div class='square' style='background: rgba(154, 140, 128 ,0.8); padding:5px; border:1px; width:auto; height:auto'><span><font color=#000>Tiefbau</font></span></div>
+            <div class='square' style='background: rgba(130, 134, 133 ,0.8); padding:5px; border:1px; width:auto; height:auto'><span><font color=#000>Umspannstation</font></span></div>
+            <div class='square' style='background: rgba(202, 202, 196 ,0.8); padding:5px; border:1px; width:auto; height:auto'><span><font color=#000>Verkehrsfläche</font></span></div>
+            <div class='square' style='background: rgba(121, 120, 117 ,0.8); padding:5px; border:1px; width:auto; height:auto'><span><font color=#000>Weingarten</font></span></div>
+            <div class='square' style='background: rgba(142, 155, 154 ,0.8); padding:5px; border:1px; width:auto; height:auto'><span><font color=#000>Windrad</font></span></div>
+        </div>
+    `
+    return div;
+};
+
+// scale
+map.addControl(new L.control.scale({
+    position: 'bottomleft',
+    metric: true,
+    imperial: false,
+}));
+
+map.addControl(new L.Control.Fullscreen({
+    title: {
+        'false': 'View Fullscreen',
+        'true': 'Exit Fullscreen'
+    },
+    position: 'topleft',
+}));
+
+map.addControl(L.control.locate({
+    position: 'topleft',
+    setView: 'untilPanOrZoom',
+    flyTo: true,
+    cacheLocation: true,
+    showCompass: true,
+    drawCircle: true,
+    drawMarker: true,
+    strings: {
+        title: "LocateME!"
+    }
+}));
+
+map.on('overlayadd', function(eventLayer) {
+    if (eventLayer.name === "LDBV Label" || eventLayer.name === 'RGB U-Net' || eventLayer.name === "RGB DeepLabV3+" || eventLayer.name === "RGB+NIR U-Net" || eventLayer.name === "RGB+NIR DeepLabV3+" || eventLayer.name === "RGB+NIR+SWIR U-Net" || eventLayer.name === "RGB+NIR+SWIR DeepLabV3+" || eventLayer.name === "ALL U-Net") {
+        legend.addTo(this);
+    } else {
+        //this.removeControl(legend);
+    }
+});
+
+map.on('overlayremove', function(eventLayer) {
+    if (eventLayer.name === "LDBV Label" || eventLayer.name === 'RGB U-Net' || eventLayer.name === "RGB DeepLabV3+" || eventLayer.name === "RGB+NIR U-Net" || eventLayer.name === "RGB+NIR DeepLabV3+" || eventLayer.name === "RGB+NIR+SWIR U-Net" || eventLayer.name === "RGB+NIR+SWIR DeepLabV3+" || eventLayer.name === "ALL U-Net") {
+        this.removeControl(legend);
+    } else {
+        //legend.addTo(this);
+    }
+});
+
+// GEOCODER
+geocoder = L.Control.geocoder({
+    defaultMarkGeocode: false,
+    position: 'topleft'
+})
+geocoder.on('markgeocode', function(e) {
+    var bbox = e.geocode.bbox;
+    var poly = L.polygon([
+       bbox.getSouthEast(),
+       bbox.getNorthEast(),
+       bbox.getNorthWest(),
+       bbox.getSouthWest()
+    ])//.addTo(map);
+    map.fitBounds(poly.getBounds());
+}).addTo(map);
+
+//#############################################################################
+//### BUTTONS #################################################################
+//#############################################################################	
+$(disclaimerbutton_acceptDiv).on('click', function(){
+    removeDiv($("#disclaimerDiv"));
+    showDiv($("#welcomeDiv"));
+    setTimeout(removeWelcome,2000);
+});
+function removeWelcome(){
+    removeDiv($("#welcomeDiv"))
+}
+
+//#############################################################################
+//### LOADER ##################################################################
+//#############################################################################
+$(window).on('load', function(){
+    setTimeout(removeLoader, 2500);
+});
+function removeLoader(){
+    hideDiv($("#welcomeDiv"))
+    removeDiv($("#loadingDiv"))
+}
+
+//#############################################################################
+//### UTILS ###################################################################
+//#############################################################################
+function removeDiv(Div){
+    Div.fadeOut(500, function() {
+        Div.remove();
+    });  
+}
+function showDiv(Div){
+    Div.show()
+}
+function hideDiv(Div){
+    Div.hide()
+}
+</script>
+
+</body>
+</html>
