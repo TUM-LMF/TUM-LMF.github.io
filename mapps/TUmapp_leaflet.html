@@ -189,7 +189,7 @@ let bergfexOSM = L.tileLayer('http://maps.bergfex.at/osm/standard/{z}/{x}/{y}.jp
 
 // Sentinel Hub WMS service
 // tiles generated using EPSG:3857 projection - Leaflet takes care of that
-let baseUrl = "https://services.sentinel-hub.com/ogc/wms/f96088e0-a9b8-4156-93b3-5c9b02f239bc";
+let baseUrl = "https://sh.dataspace.copernicus.eu/ogc/wms/ee6b8d2a-b8d1-473a-82e6-42d3f273a74c";
 
 // sentinel2 layer True Color
 let sentinelHub_TrueColor_maxcc20 = L.tileLayer.wms(baseUrl, {
@@ -201,9 +201,24 @@ let sentinelHub_TrueColor_maxcc20 = L.tileLayer.wms(baseUrl, {
  	preview: 2,
  	format: "image/jpg",
  	opacity: 1,
- 	preset:"TRUE_COLOR_VISUALIZATION", 
- 	layers:"TRUE_COLOR_VISUALIZATION,DATE", 
- 	time:"2021-05-10/None", 
+ 	preset:"TRUE-COLOR_VISUALIZATION", 
+ 	layers:"TRUE-COLOR_VISUALIZATION,DATE", 
+ 	time:"2023-05-10/None", 
+});
+
+// sentinel2 layer SWIR 
+let sentinelHub_SWIR_maxcc20 = L.tileLayer.wms(baseUrl, {
+    tileSize: 512,
+    attribution: '&copy; <a href="https://sentinels.copernicus.eu/web/sentinel/home" target="_blank">Copernicus</a>',
+ 	maxcc:20, 
+ 	minZoom:1, 
+ 	maxZoom:18,
+ 	preview: 2,
+ 	format: "image/jpg",
+ 	opacity: 1,
+ 	preset:"SWIR_VISUALIZATION", 
+ 	layers:"SWIR_VISUALIZATION,DATE", 
+ 	time:"2023-05-10/None", 
 });
 
 // sentinel2 layer NDVI
@@ -218,7 +233,7 @@ let sentinelHub_NDVI_maxcc20 = L.tileLayer.wms(baseUrl, {
  	opacity: 1,
  	preset:"NDVI_VISUALIZATION", 
  	layers:"NDVI_VISUALIZATION,DATE", 
- 	time:"2021-05-10/None",
+ 	time:"2023-05-10/None",
 });
 
 // sentinel2 layer SnowME
@@ -233,7 +248,7 @@ let sentinelHub_SnowME_maxcc20 = L.tileLayer.wms(baseUrl, {
  	opacity: 1,
  	preset:"SNOWME", 
  	layers:"SNOWME,DATE", 
- 	time:"2021-05-10/None",
+ 	time:"2023-05-10/None",
 });
 
 // sentinel2 overlay SnowME
@@ -246,9 +261,9 @@ let sentinelHub_SnowME_overlay_maxcc20 = L.tileLayer.wms(baseUrl, {
  	preview: 2,
  	format: "image/png",
  	//opacity: 0.2,
- 	preset:"SNOWME_OVERLAY", 
- 	layers:"SNOWME_OVERLAY,DATE", 
- 	time:"2021-05-10/None",
+ 	preset:"SNOWME-OVERLAY", 
+ 	layers:"SNOWME-OVERLAY,DATE", 
+ 	time:"2023-05-10/None",
 });
 
 // sentinel2 layer BurnME
@@ -263,7 +278,7 @@ let sentinelHub_BurnME_maxcc20 = L.tileLayer.wms(baseUrl, {
  	opacity: 1,
  	preset:"BURNME", 
  	layers:"BURNME,DATE", 
- 	time:"2021-05-10/None",
+ 	time:"2023-05-10/None",
 });
 
 // DEFINE MAP
@@ -273,6 +288,7 @@ let baseMaps = {
 };
 let overlayMaps = {
     'True Color': sentinelHub_TrueColor_maxcc20,
+    'SWIR': sentinelHub_SWIR_maxcc20,
     'NDVI': sentinelHub_NDVI_maxcc20,
     'SnowME': sentinelHub_SnowME_maxcc20,
     'SnowME Mask': sentinelHub_SnowME_overlay_maxcc20,
@@ -286,7 +302,7 @@ let map = L.map('map', {
     zoom: 11,
     zoomSnap: 0.25,
     zoomDelta: 1,
-    layers: [bergfexOSM,],
+    layers: [osm,],
 });
 
 var southWest = L.latLng(47.2, 8.8);
